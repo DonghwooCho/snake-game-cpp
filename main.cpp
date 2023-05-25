@@ -1,8 +1,8 @@
 #include <iostream>
 #include <ncurses.h>
-#include "object/map.h"
-#include "object/game.h"
-#include "object/drawable.h"
+#include "src/map.h"
+#include "src/game.h"
+#include "src/drawable.h"
 
 #define MAP_HEIGHT   20
 #define MAP_WIDTH    MAP_HEIGHT * 2
