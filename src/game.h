@@ -1,6 +1,9 @@
 #ifndef GAME_H
 #define GAME_H
+#define MAP_HEIGHT   25
+#define MAP_WIDTH    MAP_HEIGHT * 2
 
+#include <ncurses.h>
 #include <time.h>
 #include <stdlib.h>
 #include "empty.h"
@@ -22,33 +25,58 @@ private:
     void handleNextPiece(SnakePiece next) {
 
         if(apple != NULL) {
-            switch(map.getChar(next.getY(), next.getX())) {
+            chtype element = map.getChar(next.getY(), next.getX());
+            switch(element) {
                 case 'A':
                     eatApple();
                     break;
                 case ' ':
+                case 321: // A
+                case 288: // 검은색
+                case 1312: // 검은색
                 {
+                    
                     int emptyRow = snake.tail().getY();
                     int emptyCol = snake.tail().getX();
+                    // 뒤따라 오는 맵 색깔
+                    map.setOnColor(5);
                     map.add(Empty(emptyRow, emptyCol));
+                    map.setOffColor(5);
+
                     snake.removePiece();
                     break;
                 }
+                // case 291: 내 몸에 부딪힌 경우
                 default:
                     gameOver = true;
+                    endwin();
+                    std::cout << "NUM: " << map.getChar(next.getY(), next.getX()) 
+                    << "   |   " << std::endl;
                     break;
             }
         }
 
+        
+        // 뱀 몸통 색깔 바꾸기
+        map.setOnColor(7);
+        map.findSnakeBody();
+        map.setOffColor(7);
+
+        // 뱀 머리 색깔  
+        map.setOnColor(6);
         map.add(next);
         snake.addPiece(next);
-    }
+        map.setOffColor(6);
 
+    }
     void createApple() {
         int y, x;
         map.getEmptyCoordinates(y, x);
+        // 사과 색깔
+        //map.setOnColor(1);
         apple = new Apple(y, x);
         map.add(*apple);
+        //map.setOffColor(1);
     }
 
     void destroyApple() {
@@ -81,13 +109,16 @@ public:
         scoreBoard.init(score);
         gameOver = false;
         srand(time(NULL));
-        snake.setDirection(down);
 
+        snake.setDirection(down);
         handleNextPiece(SnakePiece(1, 1));
         handleNextPiece(snake.nextHead());
         handleNextPiece(snake.nextHead());
         snake.setDirection(right);
+
+        map.setOnColor(3);
         handleNextPiece(snake.nextHead());
+        map.setOffColor(3);
 
         if(apple == NULL) {
             createApple();
@@ -97,6 +128,7 @@ public:
     void processInput() {
         chtype input = map.input();
 
+        map.setOnColor(2);
         switch(input) {
             case KEY_UP:
             case 'W':
@@ -128,11 +160,15 @@ public:
             default:
                 break;
         }
+        map.setOffColor(2);
     }
 
     void updateState() {
-
+        
+        // 뒤따라 오는 흔적 색깔
+        map.setOnColor(3);
         handleNextPiece(snake.nextHead());
+        map.setOffColor(3);
 
         if(apple == NULL) {
             createApple();

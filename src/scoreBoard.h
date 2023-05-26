@@ -8,18 +8,22 @@ public:
 
     }
     ScoreBoard(int width, int y, int x) {
-        container = newwin(1, width, y, x);
+        container = newwin(6, width, y, x);
+        wbkgd(container, COLOR_PAIR(4));
     }
 
     void init(int initScore) {
         clear();
-        mvwprintw(container, 0, 0, "Score: ");
+        mvwprintw(container, 1, 1, "<Score Board>");
+        mvwprintw(container, 3, 1, "Score: ");
+        mvwprintw(container, 4, 1, "Growth Item: ");
         updateScore(initScore);
         refresh();
     }
 
     void updateScore(int score) {
-        mvwprintw(container, 0, container->_maxx - 10, "%11llu", score);
+        mvwprintw(container, 3, container->_maxx - 10, "%10llu", score);
+        mvwprintw(container, 4, container->_maxx - 10, "%10llu", score / 100);
     }
 
     void clear() {

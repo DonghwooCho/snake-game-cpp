@@ -1,6 +1,11 @@
 #ifndef MAP_H
 #define MAP_H
+#define MAP_COLOR    1
+#define SCORE_COLOR  2
+#define MAP_HEIGHT   25
+#define MAP_WIDTH    MAP_HEIGHT * 2
 
+#include <ncurses.h>
 #include <time.h>
 #include <stdlib.h>
 #include "drawable.h"
@@ -14,28 +19,26 @@ private:
     int startCol;
 
 public:
-    Map(int height, int width, int speed) {
+    Map(int height, int width, int speed) : height{height}, width{width} {
         int consoleX, consoleY;
         getmaxyx(stdscr, consoleY, consoleX);
 
         startRow = 2;
         startCol = 5;
-
+        
         container = newwin(height, width, startRow, startCol);
-        box(container, 0, 0);
+        keypad(container, true);
+
         wrefresh(container);
 
-        this -> height = height;
-        this -> width = width;
-
-        wtimeout(container, 1000);
-
-        keypad(container, true);
+        setTimeout(1000);
     }
 
     void init() {
         clear();
         refresh();
+
+        // wattron(container, COLOR_PAIR(MAP_COLOR));
     }
 
     void add(Drawable drawable) {
@@ -47,7 +50,17 @@ public:
     }
 
     void addBox() {
+        wattron(container, COLOR_PAIR(2));
         box(container, 0, 0);
+        wattroff(container, COLOR_PAIR(2));
+
+        wattron(container, COLOR_PAIR(1));
+        mvwaddch(container, 0, 0, '+');
+        mvwaddch(container, 0, MAP_WIDTH - 1, '+');
+        mvwaddch(container, MAP_HEIGHT - 1, 0, '+');
+        mvwaddch(container, MAP_HEIGHT - 1, MAP_WIDTH - 1, '+');
+        wattroff(container, COLOR_PAIR(1));
+
     }
 
     int getStartRow() {
@@ -81,8 +94,27 @@ public:
         wrefresh(container);
     }
 
+    void setOnColor(int color) {
+        wattron(container, COLOR_PAIR(color));
+    }
+
+    void setOffColor(int color) {
+        wattroff(container, COLOR_PAIR(color));
+    }
+
     void setTimeout(int timeout) {
         wtimeout(container, timeout);
+    }
+
+    void findSnakeBody() {
+        for (int row = 1; row < MAP_HEIGHT - 1; row++) {
+            for (int col = 1; col < MAP_WIDTH - 1; col++) {
+                chtype ch = mvwinch(container, row, col);
+                if(ch == 1571) {
+                    mvwaddch(container, row, col, '%');
+                }
+            }
+        }
     }
 };
 
