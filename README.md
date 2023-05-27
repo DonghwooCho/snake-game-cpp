@@ -1,6 +1,7 @@
 # 🐍 Snake Game
 ## 2023/05/23 ~ 2023/06/XX
-`snake game with nurces library using c++`
+`snake game with ncurses library using c++`
+
 ### version 1.0
 - Snake Game 프토토타입 구현(Map, Snake, Item, Score 기본 기능 포함)
 ### version 1.1
