@@ -1,5 +1,5 @@
 # 🐍 Snake Game
-## 2023/05/23 ~ 2023/06/XX
+## 2023/05/23 ~ 2023/06/17
 `snake game with ncurses library using c++`
 
 ### version 1.0
