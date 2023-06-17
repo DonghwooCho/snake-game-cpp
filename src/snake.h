@@ -13,13 +13,13 @@ public:
     SnakePiece() {
         this -> x = 0;
         this -> y = 0;
-        this -> ch = '#';
+        this -> ch = ' ' | A_REVERSE;
     }
 
     SnakePiece(int y, int x) {
         this -> x = x;
         this -> y = y;
-        this -> ch = '#';
+        this -> ch = ' ' | A_REVERSE;
     }
 };
 

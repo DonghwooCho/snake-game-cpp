@@ -110,12 +110,39 @@ public:
         for (int row = 1; row < MAP_HEIGHT - 1; row++) {
             for (int col = 1; col < MAP_WIDTH - 1; col++) {
                 chtype ch = mvwinch(container, row, col);
-                if(ch == 1571) {
-                    mvwaddch(container, row, col, '%');
+                if(ch == 263712) {
+                    mvwaddch(container, row, col, ' ' | A_REVERSE);
                 }
             }
         }
     }
+
+    int getSnakeLength() {
+        int length = 0;
+        for (int row = 1; row < MAP_HEIGHT - 1; row++) {
+            for (int col = 1; col < MAP_WIDTH - 1; col++) {
+                chtype ch = mvwinch(container, row, col);
+                if(ch == 263456 || ch == 263712) {
+                    length += 1;
+                }
+            }
+        }
+        return length;
+    }
+
+    int countItem() {
+        int count = 0;
+         for (int row = 1; row < MAP_HEIGHT - 1; row++) {
+            for (int col = 1; col < MAP_WIDTH - 1; col++) {
+                chtype ch = mvwinch(container, row, col);
+                if(ch == 4195168 || ch == 4194656) {
+                    count += 1;
+                }
+            }
+        }
+        return count;
+    }
+
 };
 
 #endif // MAP_H

@@ -7,28 +7,44 @@
 #include <time.h>
 #include <stdlib.h>
 #include "empty.h"
-#include "apple.h"
+#include "growthItem.h"
+#include "poisonItem.h"
 #include "map.h"
 #include "snake.h"
 #include "scoreBoard.h"
 #include "drawable.h"
+#include <cstdlib>
+#include <ctime>
+
 
 class Game {
 private:
     Map map;
     bool gameOver;
-    Apple *apple;
+    GrowthItem *growthItem;
+    PoisonItem *poisonItem;
     Snake snake;
     ScoreBoard scoreBoard;
     int score;
 
     void handleNextPiece(SnakePiece next) {
 
-        if(apple != NULL) {
+        if(growthItem != NULL || poisonItem != NULL) {
             chtype element = map.getChar(next.getY(), next.getX());
             switch(element) {
-                case 'A':
-                    eatApple();
+                case 4195168: // 좋은 아이템 먹었을 때
+                    eatGrowthItem();
+                    break;
+                case 4194656: // 나쁜 아이템 먹었을 때
+                    eatPoisonItem();
+
+                    map.setOnColor(5);
+                    for(int i = 0; i < 2; i++) {
+                        map.add(Empty(snake.tail().getY(), snake.tail().getX()));
+                        snake.removePiece();
+                    }
+                    map.setOffColor(5);
+
                     break;
                 case ' ':
                 case 321: // A
@@ -38,6 +54,7 @@ private:
                     
                     int emptyRow = snake.tail().getY();
                     int emptyCol = snake.tail().getX();
+
                     // 뒤따라 오는 맵 색깔
                     map.setOnColor(5);
                     map.add(Empty(emptyRow, emptyCol));
@@ -46,7 +63,6 @@ private:
                     snake.removePiece();
                     break;
                 }
-                // case 291: 내 몸에 부딪힌 경우
                 default:
                     gameOver = true;
                     endwin();
@@ -58,34 +74,57 @@ private:
 
         
         // 뱀 몸통 색깔 바꾸기
-        map.setOnColor(7);
+        map.setOnColor(5);
         map.findSnakeBody();
-        map.setOffColor(7);
+        map.setOffColor(5);
 
         // 뱀 머리 색깔  
         map.setOnColor(6);
         map.add(next);
-        snake.addPiece(next);
+        snake.addPiece(next); // 헤드 생성
         map.setOffColor(6);
-
+        
     }
-    void createApple() {
+    
+    void createPoisonhItem() {
         int y, x;
         map.getEmptyCoordinates(y, x);
-        // 사과 색깔
-        //map.setOnColor(1);
-        apple = new Apple(y, x);
-        map.add(*apple);
-        //map.setOffColor(1);
+        // 나쁜 아이템 색깔
+        map.setOnColor(1);
+        poisonItem = new PoisonItem(y, x);
+        map.add(*poisonItem);
+        map.setOffColor(1);
     }
 
-    void destroyApple() {
-        delete apple;
-        apple = NULL;
+    void createGrowthItem() {
+        int y, x;
+        map.getEmptyCoordinates(y, x);
+        // 좋은 아이템 색깔
+        map.setOnColor(3);
+        growthItem = new GrowthItem(y, x);
+        map.add(*growthItem);
+        map.setOffColor(3);
     }
 
-    void eatApple() {
-        destroyApple();
+    void destroyPoisonItem() {
+        delete poisonItem;
+        poisonItem = NULL;
+    }
+
+    void destroyGrowthItem() {
+        delete growthItem;
+        growthItem = NULL;
+    }
+
+    void eatPoisonItem() {
+        destroyPoisonItem();
+        score += 100;
+        scoreBoard.updateScore(score);
+    }
+
+
+    void eatGrowthItem() {
+        destroyGrowthItem();
         score += 100;
         scoreBoard.updateScore(score);
     }
@@ -99,11 +138,13 @@ public:
     }
 
     ~Game() {
-        delete apple;
+        delete growthItem;
+        delete poisonItem;
     }
 
     void init() {
-        apple = NULL;
+        growthItem = NULL;
+        poisonItem = NULL;
         map.init();
         score = 0;
         scoreBoard.init(score);
@@ -120,8 +161,8 @@ public:
         handleNextPiece(snake.nextHead());
         map.setOffColor(3);
 
-        if(apple == NULL) {
-            createApple();
+        if(growthItem == NULL && poisonItem == NULL) {
+            randomCreateItem();
         }
     }
 
@@ -170,8 +211,26 @@ public:
         handleNextPiece(snake.nextHead());
         map.setOffColor(3);
 
-        if(apple == NULL) {
-            createApple();
+        if(map.countItem() < 3) {
+            randomCreateItem();
+        }
+
+        int length = map.getSnakeLength();
+        if(length < 3) {
+            gameOver = true;
+            endwin();
+            std::cout << "Game Over: Your snake length shorter than 3!" << std::endl;
+        }
+    }
+
+    void randomCreateItem() {
+        srand(time(nullptr));
+        int choice = rand() % 2;
+
+        if(choice == 0) {
+            createGrowthItem();
+        } else {
+            createPoisonhItem();
         }
     }
 

@@ -16,7 +16,7 @@ public:
         clear();
         mvwprintw(container, 1, 1, "<Score Board>");
         mvwprintw(container, 3, 1, "Score: ");
-        mvwprintw(container, 4, 1, "Growth Item: ");
+        mvwprintw(container, 4, 1, "Item: ");
         updateScore(initScore);
         refresh();
     }
